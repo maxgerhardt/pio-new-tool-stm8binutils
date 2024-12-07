@@ -38,7 +38,7 @@ jobs:
         with:
           msystem: MINGW32
           update: true
-          install: git make mingw-w64-i686-toolchain mingw-w64-i686-libelf
+          install: git make mingw-w64-i686-toolchain mingw-w64-i686-libelf patch texinfo
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!'
