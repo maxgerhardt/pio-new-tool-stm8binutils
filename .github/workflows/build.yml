@@ -22,7 +22,7 @@ jobs:
           ./configure_mingw64_binutils.sh
           echo "Current dir: $(pwd)"
           ls
-          make -j && make install && cd ..
+          cd binutils-2.30 && ls && make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
@@ -49,7 +49,7 @@ jobs:
           ./configure_mingw64_binutils.sh
           echo "Current dir: $(pwd)"
           ls
-          make -j && make install && cd ..
+          cd binutils-2.30 && ls && make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
@@ -97,7 +97,7 @@ jobs:
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 10
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 30
-          sudo update-alternatives --set cc /usr/bin/g++
+          sudo update-alternatives --set c++ /usr/bin/g++
       - name: CI-Build
         run: |
           ./patch_binutils.sh          
