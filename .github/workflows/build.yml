@@ -16,12 +16,12 @@ jobs:
           install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf texinfo patch wget
       - name: CI-Build
         run: |
-          echo 'Running in MSYS2!'
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_mingw64_binutils.sh
-          cd binutils-2.30 && make -j && make install && cd ..
+          make -j && make install && cd ..
+          echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
         with:
@@ -41,12 +41,12 @@ jobs:
           install: git make mingw-w64-i686-toolchain mingw-w64-i686-libelf patch texinfo
       - name: CI-Build
         run: |
-          echo 'Running in MSYS2!'
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_mingw64_binutils.sh
-          cd binutils-2.30 && make -j && make install && cd ..
+          make -j && make install && cd ..
+          echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
         with:
@@ -67,6 +67,7 @@ jobs:
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_binutils.sh
           cd binutils-2.30 && make -j && make install && cd ..
+          echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           stm8_installed/bin/stm8-gdb --version || true
       - name: Tar files
@@ -199,6 +200,7 @@ jobs:
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_binutils.sh
           cd binutils-2.30 && make -j && make install && cd ..
+          echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           otool -L stm8_installed/bin/*
           stm8_installed/bin/stm8-gdb --version || true
