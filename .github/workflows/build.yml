@@ -1,0 +1,202 @@
+name: Build Binaries
+on: [push, pull_request]
+
+jobs:
+  build-win64:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf makeinfo patch wget
+      - name: CI-Build
+        run: |
+          echo 'Running in MSYS2!'
+          ./patch_binutils.sh          
+          mkdir stm8_installed
+          export PREFIX=$(pwd)/stm8_installed/
+          ./configure_mingw64_binutils.sh
+          file stm8_installed/bin/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows 64-bit
+          path: stm8_installed
+  build-win32:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: git make mingw-w64-i686-toolchain mingw-w64-i686-libelf
+      - name: CI-Build
+        run: |
+          echo 'Running in MSYS2!'
+          ./patch_binutils.sh          
+          mkdir stm8_installed
+          export PREFIX=$(pwd)/stm8_installed/
+          ./configure_mingw64_binutils.sh
+          file stm8_installed/bin/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows 32-bit
+          path: stm8_installed
+  build-lin64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependenncies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git make libelf-dev patchelf makeinfo patch wget
+      - name: CI-Build
+        run: |
+          ./patch_binutils.sh          
+          mkdir stm8_installed
+          export PREFIX=$(pwd)/stm8_installed/
+          ./configure_binutils.sh
+          file stm8_installed/bin/*
+          stm8_installed/bin/stm8-gdb --version || true
+      - name: Tar files
+        run: tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux 64-bit
+          path: stm8tools.tar.gz
+  build-lin32:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependenncies
+        run: | 
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 binutils:i386 cpp-9:i386 libelf-dev:i386 patchelf makeinfo patch wget
+          ls -l /usr/bin/*gcc*
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 10
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
+          sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 30
+          sudo update-alternatives --set cc /usr/bin/gcc
+      - name: CI-Build
+        run: |
+          ./patch_binutils.sh          
+          mkdir stm8_installed
+          export PREFIX=$(pwd)/stm8_installed/
+          ./configure_binutils.sh
+          file stm8_installed/bin/*
+          stm8_installed/bin/stm8-gdb --version || true
+      - name: Tar files
+        run: tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux 32-bit
+          path: stm8tools.tar.gz
+  build-armv7l:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          cpu: cortex-a7
+          base_image: raspios_lite:latest
+          copy_artifact_path: stm8tools.tar.gz
+          image_additional_mb: 1024
+          commands: |
+            df -h /
+            sudo apt-get update
+            sudo apt-get install -y build-essential git make makeinfo patch wget libelf-dev patchelf file
+            ./patch_binutils.sh          
+            mkdir stm8_installed
+            export PREFIX=$(pwd)/stm8_installed/
+            ./configure_binutils.sh
+            file stm8_installed/bin/*
+            stm8_installed/bin/stm8-gdb --version || true
+              tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux ARMv7l
+          path: stm8tools.tar.gz
+  build-armv6l:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          cpu: arm1176
+          base_image: raspios_lite:latest
+          copy_artifact_path: stm8tools.tar.gz
+          image_additional_mb: 1024
+          commands: |
+            df -h /
+            sudo apt-get update
+            sudo apt-get install -y build-essential git make libelf-dev patchelf file makeinfo patch wget
+            ./patch_binutils.sh          
+            mkdir stm8_installed
+            export PREFIX=$(pwd)/stm8_installed/
+            ./configure_binutils.sh
+            file stm8_installed/bin/*
+            stm8_installed/bin/stm8-gdb --version || true
+            tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux ARMv6l
+          path: stm8tools.tar.gz
+  build-aarch64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pguyot/arm-runner-action@v2
+        id: build_image
+        with:
+          cpu: cortex-a53
+          base_image: raspios_lite_arm64:latest
+          copy_artifact_path: stm8tools.tar.gz
+          image_additional_mb: 1024
+          commands: |
+            df -h /
+            sudo apt-get install -y build-essential git make libelf-dev patchelf file makeinfo patch wget
+            ./patch_binutils.sh          
+            mkdir stm8_installed
+            export PREFIX=$(pwd)/stm8_installed/
+            ./configure_binutils.sh
+            file stm8_installed/bin/*
+            stm8_installed/bin/stm8-gdb --version || true
+            tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Linux AArch64
+          path: stm8tools.tar.gz
+  build-darwin-arm64:
+    # this is currently macos-14, Sonoma
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Dependenncies
+        run: | 
+          HOMEBREW_NO_INSTALL_FROM_API=1 brew install make libelf makeinfo patch wget
+      - name: CI-Build
+        run: |
+          ./patch_binutils.sh          
+          mkdir stm8_installed
+          export PREFIX=$(pwd)/stm8_installed/
+          ./configure_binutils.sh
+          file stm8_installed/bin/*
+          otool -L stm8_installed/bin/*
+          stm8_installed/bin/stm8-gdb --version || true
+      - name: Tar files
+        run: tar -cvf stm8tools.tar.gz -C stm8_installed .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mac OS ARM64
+          path: stm8tools.tar.gz
