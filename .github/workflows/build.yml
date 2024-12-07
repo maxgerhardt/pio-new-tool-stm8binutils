@@ -20,6 +20,8 @@ jobs:
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_mingw64_binutils.sh
+          echo "Current dir: $(pwd)"
+          ls
           make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
@@ -45,6 +47,8 @@ jobs:
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_mingw64_binutils.sh
+          echo "Current dir: $(pwd)"
+          ls
           make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
@@ -84,12 +88,16 @@ jobs:
         run: | 
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 binutils:i386 cpp-9:i386 libelf-dev:i386 patchelf texinfo patch wget
+          sudo apt-get install -y libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 gcc-9:i386 g++-9:i386 binutils:i386 cpp-9:i386 libelf-dev:i386 patchelf texinfo patch wget
           ls -l /usr/bin/*gcc*
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 10
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 20
           sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 30
           sudo update-alternatives --set cc /usr/bin/gcc
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 10
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 30
+          sudo update-alternatives --set cc /usr/bin/g++
       - name: CI-Build
         run: |
           ./patch_binutils.sh          
@@ -199,7 +207,7 @@ jobs:
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_binutils.sh
-          cd binutils-2.30 && make -j && make install && cd ..
+          cd binutils-2.30 && make -j && make install && cd ../..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           otool -L stm8_installed/bin/*
