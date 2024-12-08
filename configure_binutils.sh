@@ -9,4 +9,4 @@ if [ x$PREFIX != x"" ]; then
   _PREFIX="-prefix=$PREFIX"
 fi
 
-./configure --host=$_HOST --target=stm8-none-elf32 $_PREFIX --program-prefix=stm8-
+./configure --host=$_HOST --target=stm8-none-elf32 $_PREFIX --program-prefix=stm8- --with-python=no

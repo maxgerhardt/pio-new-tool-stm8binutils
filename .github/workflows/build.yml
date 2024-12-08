@@ -161,7 +161,7 @@ jobs:
             mkdir stm8_installed
             export PREFIX=$(pwd)/stm8_installed/
             ./configure_binutils.sh
-            cd binutils-2.30 && make -j && make install && cd ..
+            cd binutils-2.30 && make -j2 && make install && cd ..
             file stm8_installed/bin/*
             stm8_installed/bin/stm8-gdb --version || true
             tar -cvf stm8tools.tar.gz -C stm8_installed .
