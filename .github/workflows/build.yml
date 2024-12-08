@@ -13,16 +13,17 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf texinfo patch wget
+          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf texinfo patch wget bison yacc m4 flex
       - name: CI-Build
         run: |
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
+          export HOST=x86_64-w64-mingw32
           ./configure_mingw64_binutils.sh
           echo "Current dir: $(pwd)"
           ls
-          cd binutils-2.30 && ls && make -j && make install && cd ..
+          cd mingw64_binutils && ls && make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
@@ -46,10 +47,11 @@ jobs:
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
+          export HOST=i686-w64-mingw32
           ./configure_mingw64_binutils.sh
           echo "Current dir: $(pwd)"
           ls
-          cd binutils-2.30 && ls && make -j && make install && cd ..
+          cd mingw64_binutils && ls && make -j && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
       - uses: actions/upload-artifact@v4
@@ -70,7 +72,7 @@ jobs:
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_binutils.sh
-          cd binutils-2.30 && make -j && make install && cd ..
+          cd binutils-2.30 && make -j4 && make install && cd ..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           stm8_installed/bin/stm8-gdb --version || true
@@ -200,14 +202,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Dependenncies
         run: | 
-          HOMEBREW_NO_INSTALL_FROM_API=1 brew install make libelf texinfo gpatch wget
+          HOMEBREW_NO_INSTALL_FROM_API=1 brew install make libelf texinfo gpatch
       - name: CI-Build
         run: |
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
           ./configure_binutils.sh
-          cd binutils-2.30 && make -j && make install && cd ../..
+          cd binutils-2.30 && make -j  V=1 && make install && cd ../../..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           otool -L stm8_installed/bin/*

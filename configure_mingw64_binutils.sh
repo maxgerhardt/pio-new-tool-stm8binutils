@@ -1,4 +1,9 @@
 mkdir -p mingw64_binutils
 cd mingw64_binutils
-../binutils-2.30/configure --host=x86_64-w64-mingw32 --target=stm8-none-elf32 --program-prefix=stm8- --with-system-readline \
---with-libexpat-prefix=/usr/x86_64-w64-mingw32/sys-root/mingw/ LDFLAGS=-static
+if [ x$HOST=x"" ]; then
+  _HOST=$(./../binutils-2.30/config.guess)
+else
+  _HOST=$HOST
+fi
+../binutils-2.30/configure --host=$_HOST --target=stm8-none-elf32 --program-prefix=stm8- --with-system-readline \
+--with-libexpat-prefix=/usr/$_HOST/sys-root/mingw/ LDFLAGS=-static
