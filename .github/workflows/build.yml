@@ -13,7 +13,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf texinfo patch wget bison yacc m4 flex
+          install: git make mingw-w64-x86_64-toolchain mingw-w64-x86_64-libelf texinfo patch wget
       - name: CI-Build
         run: |
           ./patch_binutils.sh          
