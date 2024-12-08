@@ -208,8 +208,8 @@ jobs:
           ./patch_binutils.sh          
           mkdir stm8_installed
           export PREFIX=$(pwd)/stm8_installed/
-          ./configure_binutils.sh
-          cd binutils-2.30 && make -k -j V=1 && make install && cd ../../..
+          cd binutils-2.30 && ./configure --host=$(./config.guess) --target=stm8-none-elf32 -prefix=$PREFIX --program-prefix=stm8- --with-python=no  CFLAGS="-DGWINSZ_IN_SYS_IOCTL" CXXFLAGS="-DGWINSZ_IN_SYS_IOCTL"
+          make -k -j V=1 && make install && cd ../..
           echo "Current dir: $(pwd)"
           file stm8_installed/bin/*
           otool -L stm8_installed/bin/*
